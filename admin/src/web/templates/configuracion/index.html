@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block title %}Ajustes del Sistema{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='configuracion.css') }}">
+
+<div class="content__header">
+    <h1>Ajustes del Sistema</h1>
+    <p class="form-help" style="margin-top: 4px; font-size: 14px;">
+        Parámetros globales de configuración de la plataforma.
+    </p>
+</div>
+
+<section class="config-card">
+    <form action="{{ url_for('configuracion.actualizar') }}" method="POST" class="config-form">
+        <!-- Elementos por página -->
+        <div class="form-group">
+            <label for="elementos_por_pagina">Elementos por página en los listados</label>
+            <input 
+                type="number" 
+                id="elementos_por_pagina" 
+                name="elementos_por_pagina" 
+                class="form-input"
+                min="1" 
+                max="25"
+                value="{{ config.elementos_por_pagina }}" 
+                required
+            >
+            <span class="form-help">Cantidad de filas mostradas de forma predeterminada en tablas y listados.</span>
+        </div>
+
+        <!-- Sitio en mantenimiento -->
+        <div class="form-checkbox-card">
+            <input 
+                type="checkbox" 
+                id="sitio_en_mantenimiento" 
+                name="sitio_en_mantenimiento"
+                {% if config.sitio_en_mantenimiento %}checked{% endif %}
+            >
+            <label for="sitio_en_mantenimiento">Deshabilitar sitio por mantenimiento</label>
+        </div>
+
+        <!-- Mensaje de mantenimiento -->
+        <div class="form-group">
+            <label for="mensaje_mantenimiento">Mensaje de mantenimiento</label>
+            <textarea 
+                id="mensaje_mantenimiento" 
+                name="mensaje_mantenimiento" 
+                class="form-textarea"
+                rows="4" 
+                placeholder="Indique a los comensales y operadores el motivo del mantenimiento..."
+            >{{ config.mensaje_mantenimiento or '' }}</textarea>
+        </div>
+
+        <!-- Botón de acción -->
+        <div>
+            <button type="submit" class="accion-btn accion-btn--primary">Guardar configuración</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

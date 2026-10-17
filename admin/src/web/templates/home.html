@@ -1,0 +1,111 @@
+{% extends "layout.html" %}
+
+{% block title %}Inicio - Panel de Administración{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='statistics.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="statistics">
+        <header class="statistics__header">
+            <div>
+                <p class="statistics__eyebrow">RESUMEN GENERAL</p>
+                <h1>Estadísticas</h1>
+                <p class="statistics__description">
+                    Estado y distribución de usuarios, sectores y personal.
+                </p>
+            </div>
+        </header>
+
+        <div class="statistics__sections">
+            <section class="statistics-card" aria-labelledby="users-statistics-title">
+                <header class="statistics-card__header">
+                    <div>
+                        <p class="statistics-card__eyebrow">ACCESO AL SISTEMA</p>
+                        <h2 id="users-statistics-title">Usuarios</h2>
+                    </div>
+                    <span class="statistics-card__total">{{ user_stats.get("total", 0) }}</span>
+                </header>
+                <dl class="statistics-card__metrics">
+                    <div class="statistics-metric statistics-metric--active">
+                        <dt>Activos</dt>
+                        <dd>{{ user_stats.get("activos", 0) }}</dd>
+                    </div>
+                    <div class="statistics-metric statistics-metric--inactive">
+                        <dt>Inactivos</dt>
+                        <dd>{{ user_stats.get("inactivos", 0) }}</dd>
+                    </div>
+                    <div class="statistics-metric">
+                        <dt>Con sector asignado</dt>
+                        <dd>{{ user_stats.get("con_sector_asignado", 0) }}</dd>
+                    </div>
+                </dl>
+                <div class="statistics-card__distribution">
+                    <h3>Usuarios por rol</h3>
+                    <ul>
+                        {% for nombre, cantidad in user_stats.items() if nombre not in ["total", "activos", "inactivos", "con_sector_asignado"] %}
+                        <li><span>{{ nombre }}</span><strong>{{ cantidad }}</strong></li>
+                        {% else %}
+                        <li class="statistics-card__empty">No hay roles para mostrar.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+
+            <section class="statistics-card" aria-labelledby="sectors-statistics-title">
+                <header class="statistics-card__header">
+                    <div>
+                        <p class="statistics-card__eyebrow">ORGANIZACIÓN</p>
+                        <h2 id="sectors-statistics-title">Sectores</h2>
+                    </div>
+                    <span class="statistics-card__total">{{ sector_stats.get("total", 0) }}</span>
+                </header>
+                <dl class="statistics-card__metrics">
+                    <div class="statistics-metric statistics-metric--active">
+                        <dt>Activos</dt>
+                        <dd>{{ sector_stats.get("activos", 0) }}</dd>
+                    </div>
+                    <div class="statistics-metric statistics-metric--inactive">
+                        <dt>Inactivos</dt>
+                        <dd>{{ sector_stats.get("inactivos", 0) }}</dd>
+                    </div>
+                    <div class="statistics-metric">
+                        <dt>Con jefes asignados</dt>
+                        <dd>{{ sector_stats.get("con_jefes_asignado", 0) }}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="statistics-card" aria-labelledby="staff-statistics-title">
+                <header class="statistics-card__header">
+                    <div>
+                        <p class="statistics-card__eyebrow">EQUIPO</p>
+                        <h2 id="staff-statistics-title">Personal</h2>
+                    </div>
+                    <span class="statistics-card__total">{{ personal_stats.get("total", 0) }}</span>
+                </header>
+                <dl class="statistics-card__metrics">
+                    <div class="statistics-metric statistics-metric--active">
+                        <dt>Activos</dt>
+                        <dd>{{ personal_stats.get("activos", 0) }}</dd>
+                    </div>
+                    <div class="statistics-metric statistics-metric--inactive">
+                        <dt>Inactivos</dt>
+                        <dd>{{ personal_stats.get("inactivos", 0) }}</dd>
+                    </div>
+                </dl>
+                <div class="statistics-card__distribution">
+                    <h3>Distribución por tipo y menú</h3>
+                    <ul>
+                        {% for nombre, cantidad in personal_stats.items() if nombre not in ["total", "activos", "inactivos"] %}
+                        <li><span>{{ nombre }}</span><strong>{{ cantidad }}</strong></li>
+                        {% else %}
+                        <li class="statistics-card__empty">No hay categorías para mostrar.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}

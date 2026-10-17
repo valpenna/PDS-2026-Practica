@@ -1,0 +1,160 @@
+{% extends "layout.html" %}
+
+{% block title %}Importar personal masivamente{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='personal.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="personal-form-page">
+    <a class="personal-form__back" href="{{ url_for('personal.index') }}">
+        <span aria-hidden="true">←</span> Volver al listado
+    </a>
+
+    <section class="personal-form-card personal-import" aria-labelledby="personal-import-title">
+        <div class="personal-form__intro">
+            <span class="personal-form__eyebrow">Gestión de personal</span>
+            <h1 id="personal-import-title">Importar personal masivamente</h1>
+            <p>Descargá la plantilla de ejemplo, completala y subí el archivo CSV para importar el personal.</p>
+        </div>
+
+        <section class="personal-import__requirements" aria-label="Opciones disponibles para completar la plantilla">
+            <div class="personal-import__option">
+                <h2>Tipos de personal</h2>
+                <ul>
+                    {% for tipo in tipos_personal %}
+                    <li>{{ tipo.nombre }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="personal-import__option">
+                <h2>Tipos de menú</h2>
+                <ul>
+                    {% for menu in tipos_menu %}
+                    <li>{{ menu.nombre }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+
+        <div class="personal-import__template">
+            <a href="{{ url_for('personal.descargar_plantilla_csv') }}" class="personal-form__cancel">
+                Descargar plantilla CSV de ejemplo
+            </a>
+        </div>
+
+        <form method="POST" action="{{ url_for('personal.procesar_importacion_personal') }}"
+            enctype="multipart/form-data" class="personal-form personal-import__form">
+            <div class="personal-form__field">
+                <label for="archivo">Archivo CSV</label>
+                <input type="file" id="archivo" name="archivo_csv" accept=".csv" class="personal-form__input" required>
+            </div>
+
+            <div class="personal-form__actions">
+                <a class="personal-form__cancel" href="{{ url_for('personal.index') }}">Cancelar</a>
+                <button type="submit" class="personal-form__submit">Importar archivo</button>
+            </div>
+        </form>
+
+        {% if resultado %}
+        <div class="personal-import__resultado" style="margin-top: 1.5rem;">
+            <h3>Resumen de importación</h3>
+            <p>
+                <strong>Procesados:</strong> {{ resultado.procesados }} |
+                <strong style="color: green;">Importados:</strong> {{ resultado.importados }} |
+                <strong style="color: red;">Rechazados:</strong> {{ resultado.rechazados }}
+            </p>
+
+            <div class="personal-import__tabs" role="tablist" aria-label="Resultado de la importación">
+                <button class="personal-import__tab" id="tab-importados" type="button" role="tab"
+                    aria-controls="panel-importados" aria-selected="{{ 'true' if not resultado.errores else 'false' }}">
+                    Importados ({{ resultado.importados }})
+                </button>
+                <button class="personal-import__tab" id="tab-errores" type="button" role="tab"
+                    aria-controls="panel-errores" aria-selected="{{ 'true' if resultado.errores else 'false' }}">
+                    Rechazados ({{ resultado.rechazados }})
+                </button>
+            </div>
+
+            <section class="personal-import__panel" id="panel-importados" role="tabpanel"
+                aria-labelledby="tab-importados" {% if resultado.errores %}hidden{% endif %}>
+                {% if resultado.filas_importadas %}
+                <div class="personal-import__tabla-contenedor">
+                    <table class="personal-import__tabla">
+                        <thead>
+                            <tr>
+                                <th>Fila</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Tipo de personal</th>
+                                <th>Sector</th>
+                                <th>Menú</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for persona in resultado.filas_importadas %}
+                            <tr>
+                                <td>{{ persona.fila }}</td>
+                                <td>{{ persona.nombre }}</td>
+                                <td>{{ persona.apellido }}</td>
+                                <td>{{ persona.tipo_personal }}</td>
+                                <td>{{ persona.sector }}</td>
+                                <td>{{ persona.menu }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="personal-import__sin-resultados">No se importaron filas correctamente.</p>
+                {% endif %}
+            </section>
+
+            <section class="personal-import__panel personal-import__panel--errores" id="panel-errores"
+                role="tabpanel" aria-labelledby="tab-errores" {% if not resultado.errores %}hidden{% endif %}>
+                {% if resultado.errores %}
+                <ul class="personal-import__lista-errores">
+                    {% for error in resultado.errores %}
+                    <li class="personal-import__error">
+                        {% if error.fila %}
+                        <strong>Fila {{ error.fila }}</strong>
+                        {% else %}
+                        <strong>Error del archivo</strong>
+                        {% endif %}
+                        <ul class="personal-import__detalle-errores">
+                            {% for detalle in error.detalles %}
+                            <li><strong>{{ detalle.campo }}:</strong> {{ detalle.motivo }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="personal-import__sin-resultados">No hay filas rechazadas.</p>
+                {% endif %}
+            </section>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+{% if resultado %}
+<script>
+    document.querySelectorAll(".personal-import__tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+            document.querySelectorAll(".personal-import__tab").forEach((item) => {
+                item.setAttribute("aria-selected", "false");
+            });
+            document.querySelectorAll(".personal-import__panel").forEach((panel) => {
+                panel.hidden = true;
+            });
+
+            tab.setAttribute("aria-selected", "true");
+            document.getElementById(tab.getAttribute("aria-controls")).hidden = false;
+        });
+    });
+</script>
+{% endif %}
+
+{% endblock %}

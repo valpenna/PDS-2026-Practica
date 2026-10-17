@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitio en Mantenimiento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='layout.css') }}">
+    <style>
+        .maintenance-shell {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: var(--color-bg);
+        }
+
+        .maintenance-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 20px;
+        }
+
+        .maintenance-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 40px;
+            max-width: 540px;
+            width: 100%;
+            box-shadow: 0 4px 12px var(--color-shadow);
+            text-align: center;
+        }
+
+        .maintenance-card__title {
+            margin: 0 0 16px;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--color-header);
+        }
+
+        .maintenance-card__message {
+            margin: 0 0 28px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--color-text);
+            word-break: break-word;
+        }
+
+        .maintenance-card__btn {
+            display: inline-block;
+            background-color: var(--color-primary);
+            color: #ffffff;
+            padding: 10px 22px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .maintenance-card__btn:hover {
+            opacity: 0.92;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-shell">
+        <!-- Barra superior idéntica a la original, sin datos ni avatar de usuario -->
+        <header class="topbar">
+            <div class="topbar__brand">
+                <img class="topbar__brand-logo" src="{{ url_for('static', filename='app-logo.png') }}" alt="Logo del sistema">
+                <div class="topbar__brand-text">
+                    <span class="topbar__brand-name">Sistema de Gestión</span>
+                    <span class="topbar__brand-subtitle">Sor María Ludovica</span>
+                </div>
+            </div>
+        {% if is_authenticated() %}
+            <details class="topbar__account">
+                <summary>
+                    <span>
+                        <span class="topbar__username">
+                            {{ current_user.nombre ~ ' ' ~ current_user.apellido if current_user else ''
+                            }}
+                        </span><br>
+                        <span class="topbar__role">{{ current_user.rol if current_user else 'ADMINISTRADOR' }}</span>
+                    </span>
+                    <span class="topbar__avatar">
+                        {{ (current_user.nombre[0] ~ current_user.apellido[0]) | upper if current_user and
+                        current_user.nombre and current_user.apellido else '' }}
+                    </span>
+                </summary>
+                <div class="topbar__menu">
+                    <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+                </div>
+            </details>
+            {% else %}
+            <a class="topbar__login" href="{{ url_for('auth.login_get') }}">Iniciar sesión</a>
+            {% endif %}
+        </header>
+
+        <!-- Tarjeta centrada en pantalla completa -->
+        <main class="maintenance-container">
+            <section class="maintenance-card">
+                <h1 class="maintenance-card__title">Sitio en Mantenimiento</h1>
+                <p class="maintenance-card__message">{{ mensaje }}</p>
+
+                {% if current_user and current_user.rol == 'ADMINISTRADOR' %}
+                <a href="{{ url_for('configuracion.index') }}" class="maintenance-card__btn">
+                    Volver a Configuración
+                </a>
+                {% endif %}
+            </section>
+        </main>
+    </div>
+</body>
+</html>

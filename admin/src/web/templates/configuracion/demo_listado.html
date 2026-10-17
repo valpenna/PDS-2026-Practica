@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demostración de Paginado</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background-color: #f8fafc; margin: 2rem; color: #1e293b; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; color: #0f172a; }
+        .info-badge { background: #e0f2fe; color: #0369a1; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; display: inline-block; margin-bottom: 1rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { border: 1px solid #e2e8f0; padding: 0.75rem; text-align: left; }
+        th { background: #f1f5f9; }
+        .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; }
+        .btn { padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; background: #0d9488; color: white; font-weight: 500; font-size: 0.9rem; }
+        .btn.disabled { background: #cbd5e1; pointer-events: none; }
+        .nav-link { margin-bottom: 1.5rem; display: block; color: #0d9488; text-decoration: none; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/configuracion/" class="nav-link">← Volver a Configuración</a>
+        
+        <h2>Listado de Personal (Simulado)</h2>
+        <div class="info-badge">
+            Mostrando {{ pagination.items|length }} de {{ pagination.total_items }} registros 
+            (Límite configurado: {{ pagination.per_page }} por página)
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 80px;">ID</th>
+                    <th>Nombre</th>
+                    <th>Área / Sector</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in pagination.items %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.nombre }}</td>
+                    <td>{{ item.area }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <a href="?page={{ pagination.prev_page }}" class="btn {% if not pagination.has_prev %}disabled{% endif %}">Anterior</a>
+            <span>Página <strong>{{ pagination.page }}</strong> de <strong>{{ pagination.total_pages }}</strong></span>
+            <a href="?page={{ pagination.next_page }}" class="btn {% if not pagination.has_next %}disabled{% endif %}">Siguiente</a>
+        </div>
+    </div>
+</body>
+</html>

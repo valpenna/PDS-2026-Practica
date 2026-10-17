@@ -1,0 +1,67 @@
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #fffaf4, #f8efe7);
+  color: #2f2a2a;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+header {
+  background: linear-gradient(90deg, #f9e4d5, #e9e1fb);
+  border-bottom: 1px solid rgba(114, 91, 77, 0.12);
+  padding: 1rem 2rem;
+}
+
+nav {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+nav p {
+  margin: 0;
+  color: #725b4d;
+  font-weight: 700;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+section {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(160, 154, 206, 0.45);
+  border-radius: 18px;
+  padding: 2rem;
+  box-shadow: 0 10px 20px rgba(111, 92, 83, 0.08);
+}
+
+h1, h2, h3 {
+  color: #725b4d;
+  margin-top: 0;
+}
+
+p {
+  line-height: 1.6;
+}
+
+button, .btn {
+  background: linear-gradient(135deg, #f4c7a7, #e3a77f);
+  color: #2f2a2a;
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(227, 167, 127, 0.22);
+}
+
+button:hover, .btn:hover {
+  filter: brightness(1.04);
+}
+
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: #725b4d;
+}

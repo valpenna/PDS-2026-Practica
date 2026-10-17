@@ -1,0 +1,159 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ 'Editar personal' if modo == 'editar' else 'Nuevo personal' }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='personal.css') }}">
+{% endblock %}
+
+{% set datos_form = datos if datos is defined else {} %}
+{% set errores_form = errores if errores is defined else {} %}
+{% block content %}
+<div class="personal-form-page">
+    <a class="personal-form__back" href="{{ url_for('personal.index') }}">
+        <span aria-hidden="true">←</span> Volver al listado
+    </a>
+
+    <section class="personal-form-card" aria-labelledby="personal-form-title">
+        <div class="personal-form__intro">
+            <span class="personal-form__eyebrow">Gestión de personal</span>
+            <h1 id="personal-form-title">{{ 'Editar personal' if modo == 'editar' else 'Nuevo personal' }}</h1>
+            <p>{{ 'Actualizá los datos de esta persona.' if modo == 'editar' else 'Completá los datos para incorporar
+                una persona al sistema.' }}</p>
+        </div>
+
+        <form class="personal-form" method="post"
+            action="{{ url_for('personal.editar_personal', personal_id=personal.id) if modo == 'editar' else url_for('personal.crear_personal') }}">
+            {% if errores_form.get("general") %}
+            <span class="personal-form__error">{{ errores_form["general"] }}</span>
+            {% endif %}
+            <div class="personal-form__field">
+                <label for="nombre">Nombre *</label>
+                <input id="nombre" name="nombre" type="text"
+                    value="{{ datos_form.get('nombre', personal.nombre if personal else '') }}" required {% if
+                    errores_form.get("nombre") %}aria-invalid="true" aria-describedby="error-nombre" {% endif %}>
+                {% if errores_form.get("nombre") %}
+                <span class="personal-form__error" id="error-nombre">{{ errores_form["nombre"] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="personal-form__field">
+                <label for="apellido">Apellido *</label>
+                <input id="apellido" name="apellido" type="text"
+                    value="{{ datos_form.get('apellido', personal.apellido if personal else '') }}" required {% if
+                    errores_form.get("apellido") %}aria-invalid="true" aria-describedby="error-apellido" {% endif %}>
+                {% if errores_form.get("apellido") %}
+                <span class="personal-form__error" id="error-apellido">{{ errores_form["apellido"] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="personal-form__field">
+                <label for="dni">DNI *</label>
+                <input id="dni" name="dni" type="text"
+                    value="{{ datos_form.get('dni', personal.dni if personal else '') }}" required {% if
+                    errores_form.get("dni") %}aria-invalid="true" aria-describedby="error-dni" {% endif %}>
+                {% if errores_form.get("dni") %}
+                <span class="personal-form__error" id="error-dni">{{ errores_form["dni"] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="personal-form__field">
+                <label for="tipo_personal">Tipo de personal *</label>
+                <select id="tipo_personal" name="tipo_personal_id" required {% if errores_form.get("tipo_personal_id")
+                    %}aria-invalid="true" aria-describedby="error-tipo-personal" {% endif %}>
+                    <option value="">Seleccione un tipo de personal</option>
+                    {% for tipo in tipos_personal %}
+                    <option value="{{ tipo.id }}" {% if datos_form.get('tipo_personal_id', personal.tipo_personal_id if
+                        personal else '' )|string==tipo.id|string %}selected{% endif %}>{{ tipo.nombre }}</option>
+                    {% endfor %}
+                </select>
+                {% if errores_form.get("tipo_personal_id") %}
+                <span class="personal-form__error" id="error-tipo-personal">{{ errores_form["tipo_personal_id"]
+                    }}</span>
+                {% endif %}
+            </div>
+
+            <div class="personal-form__field">
+                <label for="sector" id="label-sector">Sector *</label>
+                <select id="sector" name="sector_id" {% if errores_form.get("sector_id") %}aria-invalid="true"
+                    aria-describedby="error-sector" {% endif %}>
+                    <option value="">Seleccione un sector</option>
+                    {% for sector in sectores %}
+                    <option value="{{ sector.id }}" {% if datos_form.get('sector_id', personal.sector_id if personal
+                        else '' )|string==sector.id|string %}selected{% endif %}>{{ sector.nombre }}</option>
+                    {% endfor %}
+                </select>
+                {% if errores_form.get("sector_id") %}
+                <span class="personal-form__error" id="error-sector">{{ errores_form["sector_id"] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="personal-form__field">
+                <label for="menu">Menú *</label>
+                <select id="menu" name="menu_id" required {% if errores_form.get("menu_id") %}aria-invalid="true"
+                    aria-describedby="error-menu" {% endif %}>
+                    <option value="">Seleccione un menú</option>
+                    {% for tipo_menu in tipos_menu %}
+                    <option value="{{ tipo_menu.id }}" {% if datos_form.get('menu_id', personal.menu_id if personal
+                        else '' )|string==tipo_menu.id|string %}selected{% endif %}>{{ tipo_menu.nombre }}</option>
+                    {% endfor %}
+                </select>
+                {% if errores_form.get("menu_id") %}
+                <span class="personal-form__error" id="error-menu">{{ errores_form["menu_id"] }}</span>
+                {% endif %}
+            </div>
+
+            {% if modo == 'editar' %}
+            <label class="personal-form__toggle" for="activo">
+                <input id="activo" name="activo" type="checkbox" value="on" {% if datos_form %}{{ 'checked' if
+                    datos_form.get('activo') else '' }}{% elif personal.activo %}checked{% endif %}>
+                <span class="personal-form__toggle-indicator" aria-hidden="true"></span>
+                <span class="personal-form__toggle-status personal-form__toggle-status--active">
+                    <strong>Personal activo</strong>
+                    <small>Disponible para la gestión diaria</small>
+                </span>
+                <span class="personal-form__toggle-status personal-form__toggle-status--inactive">
+                    <strong>Personal inactivo</strong>
+                    <small>No disponible para la gestión</small>
+                </span>
+            </label>
+            <input type="hidden" name="activo" value="off">
+            {% endif %}
+
+            <div class="personal-form__actions">
+                <a class="personal-form__cancel"
+                    href="{{ url_for('personal.ver_personal', personal_id=personal.id) if modo == 'editar' else url_for('personal.index') }}">Cancelar</a>
+                <button class="personal-form__submit" type="submit">{{ 'Guardar cambios' if modo == 'editar' else 'Crear
+                    Personal' }}</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const tipoSelect = document.getElementById("tipo_personal");
+        const sectorSelect = document.getElementById("sector");
+        const labelSector = document.getElementById("label-sector");
+        const hintSector = document.getElementById("hint-sector");
+
+        function actualizarCampoSector() {
+            if (!tipoSelect || !sectorSelect) return;
+            const texto = tipoSelect.options[tipoSelect.selectedIndex]?.textContent.trim().toLowerCase() ?? "";
+            const esResidente = texto.includes("residente");
+
+            if (esResidente) {
+                sectorSelect.value = "";
+                labelSector.textContent = "Sector";
+                hintSector.textContent = "Opcional para residentes.";
+            } else {
+                labelSector.textContent = "Sector *";
+                hintSector.textContent = "Obligatorio para personal fijo.";
+            }
+        }
+
+        tipoSelect?.addEventListener("change", actualizarCampoSector);
+        actualizarCampoSector();
+    });
+</script>
+{% endblock %}

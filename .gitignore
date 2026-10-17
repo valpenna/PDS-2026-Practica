@@ -1,0 +1,164 @@
+# =========================
+# Python
+# =========================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Compiled extensions
+*.so
+
+# =========================
+# Virtual environments
+# =========================
+
+.venv/
+venv/
+env/
+ENV/
+
+# =========================
+# Poetry
+# =========================
+
+# NO ignores pyproject.toml ni poetry.lock
+# Esos sí se deben versionar.
+
+# =========================
+# Flask
+# =========================
+
+instance/
+.webassets-cache
+
+# Flask environment files
+.env
+.env.*
+!.env.example
+
+# =========================
+# Jinja
+# =========================
+
+# Jinja no necesita normalmente reglas especiales.
+# Los templates HTML sí se versionan.
+
+# =========================
+# Logs
+# =========================
+
+*.log
+logs/
+
+# =========================
+# Testing / Coverage
+# =========================
+
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# =========================
+# Type checking / Linters
+# =========================
+
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+.pyre/
+.pytype/
+.ruff_cache/
+
+# =========================
+# Build / Packaging
+# =========================
+
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# =========================
+# IDEs / Editors
+# =========================
+
+# VS Code
+.vscode/
+
+# PyCharm / IntelliJ
+.idea/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# =========================
+# Operating System
+# =========================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# =========================
+# Temporary files
+# =========================
+
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+
+# =========================
+# Database files
+# =========================
+
+*.sqlite
+*.sqlite3
+*.db
+
+# =========================
+# Secrets / Keys
+# =========================
+
+*.pem
+*.key
+*.crt
+
+# =========================
+# Misc
+# =========================
+
+.cache/

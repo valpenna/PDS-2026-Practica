@@ -1,0 +1,127 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ 'Edición de sector' if modo == 'editar' else 'Creación de sector' }} - Panel de Administración{%
+endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='sectores.css') }}">
+{% endblock %}
+{% set datos_form = datos if datos is defined else none %}
+{% block content %}
+<div class="sector-form-page">
+    <a class="sector-form__back" href="{{ url_for('sectores.index') }}">
+        <span aria-hidden="true">←</span> Volver al listado
+    </a>
+
+    <section class="sector-form-card" aria-labelledby="sector-form-title">
+        <div class="sector-form__intro">
+            <span class="sector-form__eyebrow">Gestión de sectores</span>
+            <h1 id="sector-form-title">{{ 'Editar sector' if modo == 'editar' else 'Crear nuevo sector' }}</h1>
+            <p>{{ 'Actualizá los datos y responsables del sector.' if modo == 'editar' else 'Completá los datos del
+                sector para incorporarlo al sistema.' }}</p>
+        </div>
+
+        <form class="sector-form" method="POST"
+            action="{{ url_for('sectores.actualizar', id=sector.id) if modo == 'editar' else url_for('sectores.nuevo') }}">
+            {% if errores and errores.get("general") %}
+            <span class="sector-form__error">
+                {{ errores["general"] }}
+            </span>
+            {% endif %}
+            <div class="sector-form__field">
+                <label for="nombre">Nombre del sector</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Ej.: Guardia externa"
+                    value="{{ datos_form.get('nombre', '') if datos_form else (sector.nombre if sector else '') }}"
+                    required>
+                {% if errores and errores.get("nombre") %}
+                <span class="sector-form__error">
+                    {{ errores["nombre"] }}
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="sector-form__field">
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" name="descripcion" rows="4"
+                    placeholder="Describí brevemente las tareas y servicios del sector">{{ datos_form.get('descripcion', '') if datos_form else (sector.descripcion if sector else '') }}</textarea>
+                {% if errores and errores.get("descripcion") %}
+                <span class="sector-form__error">{{ errores["descripcion"] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="sector-form__field">
+                <span class="sector-form__field-label">Jefes de servicio</span>
+                <div class="sector-form__selector" data-sector-selector>
+                    <section class="sector-form__selection-panel" aria-labelledby="selected-chief-heading">
+                        <div class="sector-form__panel-heading">
+                            <h2 id="selected-chief-heading">Elegidos para este sector</h2>
+                            <span class="sector-form__selection-count" data-selection-count>0</span>
+                        </div>
+                        <div class="sector-form__selected-list" data-selected-list role="list" aria-live="polite">
+                            <p class="sector-form__selection-empty" data-empty-selection>
+                                Todavía no hay jefes seleccionados.
+                            </p>
+                        </div>
+                    </section>
+                    <section class="sector-form__available-panel" aria-labelledby="available-chief-heading">
+                        <div class="sector-form__panel-heading">
+                            <h2 id="available-chief-heading">Jefes de servicio</h2>
+                        </div>
+                        <div class="sector-form__options" role="group" aria-labelledby="available-chief-heading">
+                            {% for jefe in jefes_servicio %}
+                            {% set pertenece_sector_actual = modo == 'editar' and sector and jefe.sector_id == sector.id
+                            %}
+                            {% set tiene_otro_sector = jefe.sector_id is not none and jefe.sector_id != '' and not
+                            pertenece_sector_actual %}
+                            {% if tiene_otro_sector or (not jefe.activo and not pertenece_sector_actual) %}
+                            <label class="sector-form__option sector-form__option--assigned sector-form__candidate">
+                                <input type="checkbox" disabled>
+                                <span>{{ jefe.nombre }} {{ jefe.apellido }}</span>
+                                <small>{{ 'Este usuario ya tiene sector asignado' if tiene_otro_sector else 'Este
+                                    usuario está inactivo' }}</small>
+                            </label>
+                            {% else %}
+                            <label class="sector-form__option sector-form__candidate">
+                                <input type="checkbox" name="jefes_servicio" value="{{ jefe.id }}" {% if jefe.id|string
+                                    in jefes_seleccionados %}checked{% endif %}>
+                                <span>{{ jefe.nombre }} {{ jefe.apellido }}</span>
+                            </label>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </section>
+                </div>
+                {% if errores and errores.get("jefe_servicio") %}
+                <span class="form-error">
+                    {{ errores["jefe_servicio"] }}
+                </span>
+                {% endif %}
+                <small>Podés seleccionar más de un responsable.</small>
+            </div>
+
+            <label class="sector-form__toggle" for="activo">
+                <input type="checkbox" id="activo" name="activo" value="on" {% if datos_form %}{{ 'checked' if
+                    datos_form.get('activo') else '' }}{% elif sector %}{{ 'checked' if sector.activo else '' }}{% else
+                    %}checked{% endif %}>
+                <span class="sector-form__toggle-indicator" aria-hidden="true"></span>
+                <span class="sector-form__toggle-status sector-form__toggle-status--active">
+                    <strong>Sector activo</strong>
+                    <small>Disponible para la gestión diaria</small>
+                </span>
+                <span class="sector-form__toggle-status sector-form__toggle-status--inactive">
+                    <strong>Sector inactivo</strong>
+                    <small>No disponible para la gestión</small>
+                </span>
+            </label>
+            <input type="hidden" name="activo" value="off">
+
+            <div class="sector-form__actions">
+                <a class="sector-form__cancel" href="{{ url_for('sectores.index') }}">Cancelar</a>
+                <button class="sector-form__submit" type="submit">{{ 'Actualizar sector' if modo == 'editar' else 'Crear
+                    sector' }}</button>
+            </div>
+        </form>
+    </section>
+</div>
+<script src="{{ url_for('static', filename='sectores.js') }}" defer></script>
+{% endblock %}

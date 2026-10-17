@@ -1,0 +1,88 @@
+{% extends "layout.html" %} {% block title %} Detalle de usuario {% endblock %}
+{% block content %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='usuarios.css') }}"
+/>
+
+<div class="usuario-detalle-page">
+  <a class="usuario-detalle__back" href="{{ url_for('usuarios.index') }}">
+    ← Volver al listado
+  </a>
+
+  <div class="usuario-detalle-card">
+    <div class="usuario-detalle-header">
+      <div>
+        <span class="usuario-detalle__eyebrow"> Gestión de usuarios </span>
+
+        <h1>{{ usuario.nombre }} {{ usuario.apellido }}</h1>
+      </div>
+
+      <span
+        class="usuario-detalle__status {% if usuario.activo %} is-active {% else %} is-inactive {% endif %}"
+      >
+        {% if usuario.activo %} Activo {% else %} Inactivo {% endif %}
+      </span>
+    </div>
+
+    <div class="usuario-detalle-grid">
+      <div class="usuario-detalle-item">
+        <span class="usuario-detalle__label"> ID </span>
+
+        <span> {{ usuario.id }} </span>
+      </div>
+
+      <div class="usuario-detalle-item">
+        <span class="usuario-detalle__label"> DNI </span>
+
+        <span> {{ usuario.dni }} </span>
+      </div>
+
+      <div class="usuario-detalle-item usuario-detalle-item--full">
+        <span class="usuario-detalle__label"> Email </span>
+
+        <span> {{ usuario.email }} </span>
+      </div>
+
+      <div class="usuario-detalle-item">
+        <span class="usuario-detalle__label"> Rol </span>
+
+        <span> {{ usuario.rol.nombre }} </span>
+      </div>
+
+      <div class="usuario-detalle-item">
+        <span class="usuario-detalle__label"> Sector </span>
+
+        <span> {{ usuario.sector.nombre if usuario.sector else "-" }} </span>
+      </div>
+
+      <div class="usuario-detalle-item">
+        <span class="usuario-detalle__label"> Fecha de creación </span>
+
+        <span> {{ usuario.fecha_creacion.strftime("%d/%m/%Y - %H:%M") }} </span>
+      </div>
+
+      <div class="usuario-detalle-item">
+        <span class="usuario-detalle__label"> Última modificación </span>
+
+        <span>
+          {{ usuario.fecha_modificacion.strftime("%d/%m/%Y - %H:%M") }}
+        </span>
+      </div>
+    </div>
+
+    {% if has_permission("user_update") %}
+    <div class="usuario-detalle__actions">
+      <a
+        class="accion-btn accion-btn--secondary"
+        href="{{ url_for('usuarios.editar', user_id=usuario.id) }}"
+      >
+        Editar
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

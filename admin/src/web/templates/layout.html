@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='app-logo.png') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='layout.css') }}"
+    />
+    {% block extra_css %}{% endblock %}
+    <title>{% block title %}{% endblock %}</title>
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <!-- Header -->
+      <header class="topbar">
+        <a class="topbar__brand" href="{{ url_for('home') }}">
+          <img
+            class="topbar__brand-logo"
+            src="{{ url_for('static', filename='app-logo.png') }}"
+            alt="Logo del sistema"
+          />
+          <div class="topbar__brand-text">
+            <span class="topbar__brand-name">Sistema de Gestión</span>
+            <span class="topbar__brand-subtitle">Sor María Ludovica</span>
+          </div>
+        </a>
+
+        {% if is_authenticated() %}
+        <details class="topbar__account">
+          <summary>
+            <span>
+              <span class="topbar__username">
+                {{ current_user.nombre ~ ' ' ~ current_user.apellido if
+                current_user else '' }} </span
+              ><br />
+              <span class="topbar__role"
+                >{{ current_user.rol if current_user else 'ADMINISTRADOR'
+                }}</span
+              >
+            </span>
+            <span class="topbar__avatar">
+              {{ (current_user.nombre[0] ~ current_user.apellido[0]) | upper if
+              current_user and current_user.nombre and current_user.apellido
+              else '' }}
+            </span>
+          </summary>
+          <div class="topbar__menu">
+            <a href="{{ url_for('usuarios.detalle', user_id=current_user.id) }}">Ver perfil</a>
+            <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+          </div>
+        </details>
+        {% else %}
+        <a class="topbar__login" href="{{ url_for('auth.login_get') }}"
+          >Iniciar sesión</a
+        >
+        {% endif %}
+      </header>
+      <!-- Sidebar: restringe módulos de gestión solo al Administrador -->
+      {% if is_authenticated() %}
+      <nav class="sidebar" aria-label="Navegación principal">
+        <div class="sidebar__nav">
+          <a
+            class="sidebar__link {{ 'is-active' if active_page == 'home' else '' }}"
+            href="{{ url_for('home') }}"
+          >
+            INICIO
+          </a>
+
+          <div class="sidebar__section__container">
+            <p class="sidebar__section">GESTIÓN</p>
+            <div class="sidebar__section__underline"></div>
+          </div>
+          {% if has_permission('user_index') %}
+          <a
+            class="sidebar__link {{ 'is-active' if active_page == 'usuarios' else '' }}"
+            href="{{ url_for('usuarios.index') }}"
+          >
+            USUARIOS
+          </a>
+          {% endif %}
+          <a
+            class="sidebar__link {{ 'is-active' if active_page == 'sectores' else '' }}"
+            href="{{ url_for('sectores.index') }}"
+          >
+            SECTORES
+          </a>
+          <a
+            class="sidebar__link {{ 'is-active' if active_page == 'personal' else '' }}"
+            href="{{ url_for('personal.index') }}"
+          >
+            PERSONAL
+          </a>
+        </div>
+
+        {% if has_permission('configuration_show') %}
+        <div class="sidebar__nav sidebar__nav--bottom">
+          <div>
+            <p class="sidebar__section">SITIO</p>
+            <div class="sidebar__section__underline"></div>
+          </div>
+          <a
+            class="sidebar__link {{ 'is-active' if active_page == 'configuracion' else '' }}"
+            href="{{ url_for('configuracion.index') }}"
+          >
+            CONFIGURACION
+          </a>
+        </div>
+        {% endif %}
+      </nav>
+      {% else %}
+      <nav class="sidebar" aria-label="Navegación principal">
+        <div class="sidebar__nav">
+          <a
+            class="sidebar__link {{ 'is-active' if active_page == 'home' else '' }}"
+            href="{{ url_for('home') }}"
+          >
+            INICIO
+          </a>
+        </div>
+        <p class="sidebar__message">Autenticación necesaria.</p>
+      </nav>
+      {% endif %}
+      <!-- Content -->
+      <main class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %}
+        <div class="flash-messages" aria-label="Notificaciones">
+          {% for category, message in messages %}
+          <div
+            class="flash-message flash-message--{{ category }}"
+            role="{{ 'alert' if category == 'error' else 'status' }}"
+          >
+            <span>{{ message }}</span>
+            <button
+              class="flash-message__close"
+              type="button"
+              aria-label="Cerrar notificación"
+            >
+              &times;
+            </button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %} {% endwith %} {% block content %}{% endblock %}
+      </main>
+    </div>
+    <script>
+      document.querySelectorAll(".flash-message__close").forEach((button) => {
+        button.addEventListener("click", () =>
+          button.closest(".flash-message").remove(),
+        );
+      });
+    </script>
+  </body>
+</html>

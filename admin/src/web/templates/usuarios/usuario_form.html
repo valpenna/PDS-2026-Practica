@@ -1,0 +1,374 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {% if usuario %}
+        Editar usuario
+    {% else %}
+        Nuevo usuario
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='usuarios.css') }}"
+/>
+
+{% set datos_form = datos if datos is defined else none %}
+
+<div class="usuario-form-container">
+     <a class="usuario-detalle__back" href="{{ url_for('usuarios.index') }}">
+        ← Volver al listado
+     </a>
+    {% if usuario %}
+        <h1>Editar usuario</h1>
+    {% else %}
+        <h1>Nuevo usuario</h1>
+    {% endif %}
+
+    {% if usuario %}
+        <form
+            method="POST"
+            action="{{ url_for('usuarios.actualizar', user_id=usuario.id) }}"
+        >
+    {% else %}
+        <form
+            method="POST"
+            action="{{ url_for('usuarios.crear') }}"
+        >
+    {% endif %}
+    {% if errores and errores.get("general") %}
+        <span class="form-error">
+            {{ errores["general"] }}
+        </span>
+    {% endif %}
+        <div class="form-group">
+            <label for="nombre">Nombre</label>
+
+            <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                value="{{
+                    datos_form.get('nombre')
+                    if datos_form
+                    else usuario.nombre if usuario
+                    else ''
+                }}"
+                minlength="2"
+                maxlength="100"
+                pattern="[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]+"
+                required
+            >
+
+            {% if errores and errores.get("nombre") %}
+                <span class="form-error">
+                    {{ errores["nombre"] }}
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="apellido">Apellido</label>
+
+            <input
+                type="text"
+                id="apellido"
+                name="apellido"
+                value="{{
+                    datos_form.get('apellido')
+                    if datos_form
+                    else usuario.apellido if usuario
+                    else ''
+                }}"
+                required
+                minlength="2"
+                maxlength="100"
+                pattern="[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]+"
+            >
+
+            {% if errores and errores.get("apellido") %}
+                <span class="form-error">
+                    {{ errores["apellido"] }}
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value="{{
+                    datos_form.get('email')
+                    if datos_form
+                    else usuario.email if usuario
+                    else ''
+                }}"
+                required
+            >
+
+            {% if errores and errores.get("email") %}
+                <span class="form-error">
+                    {{ errores["email"] }}
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="dni">DNI</label>
+
+            <input
+                type="text"
+                id="dni"
+                name="dni"
+                value="{{
+                    datos_form.get('dni')
+                    if datos_form
+                    else usuario.dni if usuario
+                    else ''
+                }}"
+                maxlength="20"
+                required
+            >
+
+            {% if errores and errores.get("dni") %}
+                <span class="form-error">
+                    {{ errores["dni"] }}
+                </span>
+            {% endif %}
+
+            {% if errores and errores.get("personal") %}
+                <div class="form-error">
+                    {{ errores["personal"] }}
+
+                    <a
+                        href="{{ url_for('personal.nuevo_personal') }}"
+                        class="accion-btn accion-btn--secondary"
+                    >
+                        Cargar personal
+                    </a>
+                </div>
+            {% endif %}
+    </div>
+
+        <div class="form-group">
+            <label for="rol_id">Rol</label>
+
+            <select id="rol_id" name="rol_id" required>
+                <option value="">Seleccione un rol</option>
+
+                {% for rol in roles %}
+                    <option
+                        value="{{ rol.id }}"
+                        {% if
+                            (
+                                datos_form
+                                and datos_form.get("rol_id")|string == rol.id|string
+                            )
+                            or
+                            (
+                                not datos_form
+                                and usuario
+                                and usuario.rol_id == rol.id
+                            )
+                        %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ rol.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            {% if errores and errores.get("rol_id") %}
+                <span class="form-error">
+                    {{ errores["rol_id"] }}
+                </span>
+            {% endif %}
+        </div>
+
+        {% if usuario %}
+
+            <div class="form-group">
+                <label for="password">Nueva contraseña</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    minlength="8"
+                >
+
+                {% if errores and errores.get("password") %}
+                    <span class="form-error">
+                        {{ errores["password"] }}
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="password_confirmacion">
+                    Confirmar nueva contraseña
+                </label>
+
+                <input
+                    type="password"
+                    id="password_confirmacion"
+                    name="password_confirmacion"
+                    minlength="8"
+                >
+
+                <small>
+                    Dejar ambos campos vacíos para mantener la contraseña actual.
+                </small>
+
+                {% if errores and errores.get("password_confirmacion") %}
+                    <span class="form-error">
+                        {{ errores["password_confirmacion"] }}
+                    </span>
+                {% endif %}
+            </div>
+
+        {% else %}
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    minlength="8"
+                    required
+                >
+
+                {% if errores and errores.get("password") %}
+                    <span class="form-error">
+                        {{ errores["password"] }}
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="password_confirmacion">
+                    Confirmar contraseña
+                </label>
+
+                <input
+                    type="password"
+                    id="password_confirmacion"
+                    name="password_confirmacion"
+                    minlength="8"
+                    required
+                >
+
+                {% if errores and errores.get("password_confirmacion") %}
+                    <span class="form-error">
+                        {{ errores["password_confirmacion"] }}
+                    </span>
+                {% endif %}
+            </div>
+
+        {% endif %}
+        
+        <div class="estado-card">
+            <label class="switch-field" for="activo">
+
+                <span class="switch-control">
+                    <input
+                        type="checkbox"
+                        id="activo"
+                        name="activo"
+                        {% if datos_form %}
+                            {% if datos_form.get("activo") %}
+                                checked
+                            {% endif %}
+                        {% elif not usuario or usuario.activo %}
+                            checked
+                        {% endif %}
+                    >
+
+                    <span class="switch-slider"></span>
+                </span>
+
+                <span class="switch-text">
+                <span class="switch-title" id="estado-titulo">
+                    Usuario activo
+                </span>
+
+                <span class="switch-subtitle" id="estado-subtitulo">
+                    Permite que el usuario pueda iniciar sesión
+                </span>
+                </span>
+
+            </label>
+
+            {% if errores and errores.get("activo") %}
+                <span class="form-error">
+                    {{ errores["activo"] }}
+                </span>
+            {% endif %}
+    </div>
+
+    <div class="form-acciones">
+          <a
+            href="{{ url_for('usuarios.index') }}"
+            class="btn-form btn-form--secondary"
+        >
+            Cancelar
+        </a>
+        <button
+            type="submit"
+            class="btn-form btn-form--primary"
+        >
+            {% if usuario %}
+                Guardar cambios
+            {% else %}
+                Crear usuario
+            {% endif %}
+        </button>
+    </div>
+
+    </form>
+
+</div>
+
+<script>
+    const activo = document.getElementById("activo");
+    const estadoTitulo = document.getElementById("estado-titulo");
+    const estadoSubtitulo = document.getElementById("estado-subtitulo");
+    const password = document.getElementById("password");
+    const passwordConfirmacion =
+        document.getElementById("password_confirmacion");
+
+    function validarPasswords() {
+        if (password.value !== passwordConfirmacion.value) {
+            passwordConfirmacion.setCustomValidity(
+                "Las contraseñas no coinciden."
+            );
+        } else {
+            passwordConfirmacion.setCustomValidity("");
+        }
+    }
+
+    function actualizarEstado() {
+        if (activo.checked) {
+            estadoTitulo.textContent = "Usuario activo";
+            estadoSubtitulo.textContent =
+                "Permite que el usuario pueda iniciar sesión";
+        } else {
+            estadoTitulo.textContent = "Usuario desactivado";
+            estadoSubtitulo.textContent =
+                "El usuario no podrá iniciar sesión";
+        }
+    }
+    activo.addEventListener("change", actualizarEstado);
+    password.addEventListener("input", validarPasswords);
+    passwordConfirmacion.addEventListener("input", validarPasswords);
+    actualizarEstado();
+</script>
+{% endblock %}

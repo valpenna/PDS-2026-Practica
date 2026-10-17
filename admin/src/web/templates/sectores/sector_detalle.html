@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}Sector - Panel de Administración{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='sectores.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="sector-detalle-page">
+    <a class="sector-form__back" href="{{ url_for('sectores.index') }}">
+        <span aria-hidden="true">←</span> Volver al listado
+    </a>
+
+    <article class="sector-detalle-card" aria-labelledby="sector-detalle-title">
+        <header class="sector-detalle-header">
+            <div>
+                <span class="sector-detalle__eyebrow">Gestión de sectores</span>
+                <h1 id="sector-detalle-title">{{ sector.nombre }}</h1>
+            </div>
+            <span class="sector-detalle__status {{ 'is-active' if sector.activo else 'is-inactive' }}">
+                {{ 'Activo' if sector.activo else 'Inactivo' }}
+            </span>
+        </header>
+
+        <div class="sector-detalle-grid">
+            <div class="sector-detalle-item">
+                <span class="sector-detalle__label">Nombre</span>
+                <p>{{ sector.nombre }}</p>
+            </div>
+
+            <div class="sector-detalle-item sector-detalle-item--full">
+                <span class="sector-detalle__label">Descripción</span>
+                <p>{{ sector.descripcion }}</p>
+            </div>
+
+            <div class="sector-detalle-item">
+                <span class="sector-detalle__label">Fecha de creación</span>
+                <p>{{ sector.fecha_creacion.strftime("%d/%m/%Y %H:%M") }}</p>
+            </div>
+
+            <div class="sector-detalle-item">
+                <span class="sector-detalle__label">Última modificación</span>
+                <p>{{ sector.fecha_modificacion.strftime("%d/%m/%Y %H:%M") }}</p>
+            </div>
+
+            <div class="sector-detalle-item sector-detalle-item--full">
+                <span class="sector-detalle__label">Jefes de servicio</span>
+                {% if jefes_servicio %}
+                <ul class="sector-detalle__list">
+                    {% for jefe in jefes_servicio %}
+                    <li>- {{ jefe.nombre }} {{ jefe.apellido }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="sin-jefe">No hay jefes asignados a este sector.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="sector-detalle__actions">
+            <a class="accion-btn accion-btn--secondary" href="{{ url_for('sectores.editar', id=sector.id) }}">Editar</a>
+            <a class="accion-btn accion-btn--primary" href="{{ url_for('sectores.index') }}">Volver al listado</a>
+        </div>
+    </article>
+</div>
+{% endblock %}

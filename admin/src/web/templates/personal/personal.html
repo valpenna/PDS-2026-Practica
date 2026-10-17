@@ -1,0 +1,204 @@
+{% extends "layout.html" %}
+
+{% block title %}Personal - Panel de Administración{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='personal.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="personal-container">
+    <div class="personal-header">
+    <h1>Listado de personal</h1>
+    <div class="personal-actions" style="display: flex; gap: 1rem; align-items: center;">
+        <a class="personal-action personal-action--secondary" href="{{ url_for('personal.importar_personal') }}">
+            Importar CSV
+        </a>
+        <a class="personal-action personal-action--primary" href="{{ url_for('personal.nuevo_personal') }}" style="margin-left:auto;">
+            Nuevo personal
+        </a>
+    </div>
+</div>
+
+    <form method="GET" action="{{ url_for('personal.index') }}" class="personal-filters">
+        <div class="personal-filters__field">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" name="nombre" value="{{ request.args.get('nombre', '') }}">
+        </div>
+
+        <div class="personal-filters__field">
+            <label for="apellido">Apellido</label>
+            <input type="text" id="apellido" name="apellido" value="{{ request.args.get('apellido', '') }}">
+        </div>
+
+        <div class="personal-filters__field">
+            <label for="dni">DNI</label>
+            <input type="text" id="dni" name="dni" value="{{ request.args.get('dni', '') }}">
+        </div>
+
+        <div class="personal-filters__field">
+            <label for="activo">Estado</label>
+            <select id="activo" name="activo">
+                <option value="">Todos</option>
+                <option value="true" {% if request.args.get("activo") == "true" %}selected{% endif %}>Activos</option>
+                <option value="false" {% if request.args.get("activo") == "false" %}selected{% endif %}>Inactivos</option>
+            </select>
+        </div>
+
+        <div class="personal-filters__field">
+            <label for="tipo_personal_id">Tipo de personal</label>
+            <select id="tipo_personal_id" name="tipo_personal_id">
+                <option value="">Todos</option>
+                {% for tipo in tipos_personal %}
+                <option value="{{ tipo.id }}" {% if request.args.get("tipo_personal_id") == tipo.id|string %}selected{% endif %}>
+                    {{ tipo.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="personal-filters__field">
+            <label for="sector_id">Sector</label>
+            <select id="sector_id" name="sector_id">
+                <option value="">Todos</option>
+                {% for sector in sectores %}
+                <option value="{{ sector.id }}" {% if request.args.get("sector_id") == sector.id|string %}selected{% endif %}>
+                    {{ sector.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="personal-filters__sorting">
+            <h3>Ordenar por</h3>
+            <div class="personal-filters__sorting-grid">
+                <div class="personal-filters__field">
+                    <label for="ordenar_por">Campo</label>
+                    <select id="ordenar_por" name="ordenar_por">
+                        <option value="nombre" {% if request.args.get("ordenar_por", "nombre") == "nombre" %}selected{% endif %}>
+                            Apellido y nombre
+                        </option>
+                        <option value="dni" {% if request.args.get("ordenar_por") == "dni" %}selected{% endif %}>
+                            DNI
+                        </option>
+                        <option value="fecha" {% if request.args.get("ordenar_por") == "fecha" %}selected{% endif %}>
+                            Fecha de creación
+                        </option>
+                    </select>
+                </div>
+
+                <div class="personal-filters__field">
+                    <label for="direccion">Dirección</label>
+                    <select id="direccion" name="direccion">
+                        <option value="asc" {% if request.args.get("direccion", "asc") == "asc" %}selected{% endif %}>
+                            Ascendente
+                        </option>
+                        <option value="desc" {% if request.args.get("direccion") == "desc" %}selected{% endif %}>
+                            Descendente
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="personal-filters__actions">
+            <button type="submit" class="personal-action personal-action--primary">Filtrar</button>
+            <a href="{{ url_for('personal.index') }}" class="personal-action personal-action--secondary">
+                Limpiar filtros
+            </a>
+        </div>
+    </form>
+
+    <div class="personal-table-wrapper" id="listado-personal">
+        <table class="personal-table">
+            <thead>
+                <tr>
+                    <th>DNI</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Tipo de personal</th>
+                    <th>Sector</th>
+                    <th>Menú</th>
+                    <th>Activo</th>
+                    <th>Fecha de creación</th>
+                    <th>Última modificación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if personal %}
+                {% for p, tipo_personal, sector, menu in personal %}
+                <tr>
+                    <td>{{ p.dni }}</td>
+                    <td>{{ p.nombre }}</td>
+                    <td>{{ p.apellido }}</td>
+                    <td>{{ tipo_personal }}</td>
+                    {% if sector %}
+                    <td>{{ sector }}</td>
+                    {% else %}
+                    <td class="sin-sector">Sin sector asignado</td>
+                    {% endif %}
+                    <td>{{ menu }}</td>
+                    <td>{{ 'Sí' if p.activo else 'No' }}</td>
+                    <td>{{ p.fecha_creacion.strftime("%d/%m/%Y %H:%M")}}</td>
+                    <td>{{ p.fecha_modificacion.strftime("%d/%m/%Y %H:%M")}}</td>
+                    <td class="personal-table__actions">
+                        <a class="personal-action personal-action--secondary"
+                            href="{{ url_for('personal.ver_personal', personal_id=p.id) }}">Ver</a>
+                        <a class="personal-action personal-action--secondary"
+                            href="{{ url_for('personal.formulario_editar_personal', personal_id=p.id) }}">Editar</a>
+                        <form method="POST" action="{{ url_for('personal.eliminar_personal', personal_id=p.id) }}"
+                            onsubmit="return confirm('¿Querés eliminar este registro de personal?');">
+                            <button class="personal-action personal-action--secondary" type="submit">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="10" class="personal-table__empty">No hay personal que coincida con los filtros.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if total_paginas > 1 %}
+    <div class="personal-pagination">
+        <span class="personal-pagination__info">Página {{ pagina }} de {{ total_paginas }}</span>
+        <div class="personal-pagination__buttons">
+            {% if pagina > 1 %}
+            <a class="personal-pagination__button" href="{{ url_for(
+                'personal.index',
+                pagina=pagina - 1,
+                nombre=request.args.get('nombre'),
+                apellido=request.args.get('apellido'),
+                dni=request.args.get('dni'),
+                sector_id=request.args.get('sector_id'),
+                activo=request.args.get('activo'),
+                tipo_personal_id=request.args.get('tipo_personal_id'),
+                ordenar_por=request.args.get('ordenar_por'),
+                direccion=request.args.get('direccion'),
+                _anchor='listado-personal'
+            ) }}">← Anterior</a>
+            {% endif %}
+            {% if pagina < total_paginas %}
+            <a class="personal-pagination__button" href="{{ url_for(
+                'personal.index',
+                pagina=pagina + 1,
+                nombre=request.args.get('nombre'),
+                apellido=request.args.get('apellido'),
+                dni=request.args.get('dni'),
+                sector_id=request.args.get('sector_id'),
+                activo=request.args.get('activo'),
+                tipo_personal_id=request.args.get('tipo_personal_id'),
+                ordenar_por=request.args.get('ordenar_por'),
+                direccion=request.args.get('direccion'),
+                _anchor='listado-personal'
+            ) }}">Siguiente →</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

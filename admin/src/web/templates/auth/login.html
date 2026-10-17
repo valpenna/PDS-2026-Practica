@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión — Hospital "Sor María Ludovica"</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body class="login-body">
+
+    <main class="login-card">
+        <header class="login-header">
+                    <img
+                class="login-header__logo"
+                src="{{ url_for('static', filename='app-logo.png') }}"
+                alt="Logo del sistema"
+            />
+            <h1 class="login-header__brand">Hospital "Sor María Ludovica"</h1>
+            <p class="login-header__subtitle">Servicio de Alimentación y Dietética</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="login-alerts" role="alert">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('auth.login_post') }}" method="POST" class="login-form" novalidate>
+            <div class="form-group">
+                <label for="email" class="form-label">Correo electrónico</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    value="{{ email or '' }}" 
+                    placeholder="usuario@hospital.gob.ar"
+                    required 
+                    autofocus
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Contraseña</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    placeholder="••••••••"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Iniciar sesión
+            </button>
+        </form>
+    </main>
+
+</body>
+</html>

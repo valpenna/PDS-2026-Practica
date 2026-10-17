@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}Detalle de personal - Panel de Administración{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='personal.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="personal-form-page">
+    <a class="personal-form__back" href="{{ url_for('personal.index') }}">
+        <span aria-hidden="true">←</span> Volver al listado
+    </a>
+
+    <section class="personal-form-card" aria-labelledby="personal-detail-title">
+        <div class="personal-form__intro">
+            <span class="personal-form__eyebrow">Gestión de personal</span>
+            <h1 id="personal-detail-title">{{ personal.nombre }} {{ personal.apellido }}</h1>
+            <p>Detalle del registro de personal.</p>
+        </div>
+
+        <dl class="personal-detail">
+            <div><dt>DNI</dt><dd>{{ personal.dni }}</dd></div>
+            <div><dt>Tipo de personal</dt><dd>{{ tipo_personal.nombre }}</dd></div>
+            <div><dt>Sector</dt><dd>{{ sector.nombre if sector else 'Sin sector asignado' }}</dd></div>
+            <div><dt>Menú</dt><dd>{{ tipo_menu.nombre }}</dd></div>
+            <div><dt>Estado</dt><dd>{{ 'Activo' if personal.activo else 'Inactivo' }}</dd></div>
+            <div><dt>Fecha de creación</dt><dd>{{ personal.fecha_creacion}}</dd></div>
+            <div><dt>Última modificación</dt><dd>{{ personal.fecha_modificacion}}</dd></div>
+        </dl>
+
+        <div class="personal-form__actions">
+            <a class="personal-form__cancel" href="{{ url_for('personal.index') }}">Volver al listado</a>
+            <a class="personal-form__submit"
+                href="{{ url_for('personal.formulario_editar_personal', personal_id=personal.id) }}">Editar</a>
+        </div>
+    </section>
+</div>
+{% endblock %}
